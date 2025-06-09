@@ -1,103 +1,112 @@
-# Docker Compose Task Manager Setup
+# Task Manager - Docker Compose Assignment
 
-This project demonstrates a full-stack task manager application using **Docker Compose** with the following services:
-
-- MySQL (with persistent volume)
-- PHPMyAdmin (MySQL GUI)
-- Node.js backend API (multi-stage build, 3 replicas)
-- React frontend UI (multi-stage build, 3 replicas)
-- NGINX reverse proxy
-- PostgreSQL + pgAdmin4
+This project demonstrates how to use Docker Compose with a multi-service architecture including:
+- ReactJS frontend (3 replicas with NGINX load balancing)
+- NodeJS backend (3 replicas)
+- MySQL + phpMyAdmin
+- PostgreSQL + pgAdmin
 
 ---
 
 ## Prerequisites
+- [Docker](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/)
+- (Optional) GitHub Codespaces
 
-- Docker and Docker Compose installed
-- Internet connection to pull images
+---
 
-## Clone This Repository
+## Environment Variables
 
-```bash
-git clone https://github.com/JithinJyothi95/lab1-task-manager.git
-cd lab1-task-manager
+Set in `.env`:
+
 ```
-
-## Environment Configuration
-
-Create a `.env` file in the root directory with the following contents:
-
-```env
-# MySQL Configuration
+# MySQL
 MYSQL_ROOT_PASSWORD=rootpass
 MYSQL_DATABASE=mytasksdb
 MYSQL_USER=myuser
 MYSQL_PASSWORD=myuserpass
 
-# PostgreSQL Configuration
+# PostgreSQL
 POSTGRES_USER=pguser
 POSTGRES_PASSWORD=pgpass
 POSTGRES_DB=pgdb
+
+# pgAdmin
 PGADMIN_DEFAULT_EMAIL=jithin@email.com
 PGADMIN_DEFAULT_PASSWORD=jithinpass
 ```
 
 ---
 
-## Running the Application
+## Running Locally
 
 ```bash
-docker-compose up -d --build
+# Clone the repository
+git clone https://github.com/JithinJyothi95/lab1-task-manager.git
+cd lab1-task-manager
+
+# Step 1: Start MySQL, phpMyAdmin, backend, frontend, nginx
+docker-compose up -d
+
+# Step 2: Start PostgreSQL and pgAdmin from subdirectory
+cd postgres-pgadmin
+docker-compose up -d
 ```
 
-All services will be built and launched. Data volumes ensure persistence.
+- Access Task Manager: [http://localhost:3001](http://localhost:3001)
+- Access phpMyAdmin: [http://localhost:8081](http://localhost:8081)
+- Access pgAdmin: [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## Access Services in Browser
+## Running in GitHub Codespaces
 
-| Service        | URL                     |
-|----------------|--------------------------|
-| Task Frontend  | http://localhost:3001    |
-| Backend API    | http://localhost:3001/api/tasks |
-| PHPMyAdmin     | http://localhost:8081    |
-| pgAdmin4       | http://localhost:8080    |
+```bash
+# Inside Codespace terminal:
+cd lab1-task-manager
+docker-compose up -d
+
+cd postgres-pgadmin
+docker-compose up -d
+```
+
+Then visit the forwarded ports:
+- Frontend: `3001-<your-id>.preview.app.github.dev`
+- phpMyAdmin: `8081-<your-id>.preview.app.github.dev`
+- pgAdmin: `8080-<your-id>.preview.app.github.dev`
+
+Use `curl http://localhost:3001/api/tasks` in terminal to test backend.
+
+---
+
+## Screenshots
+
+All screenshots are located in the `screenshots/` folder to demonstrate:
+- Running containers (`docker ps`, Docker Desktop)
+- Frontend & Backend working via browser
+- phpMyAdmin showing MySQL table updates
+- pgAdmin 4 running inside Codespaces
+
+---
+
+## File Structure Overview
+
+```
+lab1-task-manager/
+├── backend/
+├── frontend/
+├── nginx/
+├── postgres-pgadmin/
+├── screenshots/
+├── .env
+├── docker-compose.yml
+└── README.md
+```
 
 ---
 
 ## Notes
-
-- **3 replicas** of both frontend and backend are defined in `docker-compose.yml`
-- **Multi-stage builds** are used for both Node.js and React apps
-- **Nginx** handles reverse proxy for frontend/backend
-- All credentials are managed via `.env`
-
-
----
-## Required Screenshots
-- Include the following in your `screenshots/` folder:
-- All containers running (docker ps, Docker Desktop)
-- App accessible via localhost:3001
-- API output GET /api/tasks
-- phpMyAdmin with mytasksdb and tasks table
-- pgAdmin connected to PostgreSQL
-- Screenshot showing load-balanced backend replicas
-
----
-## Stopping Services
-
-```bash
-docker-compose down
-```
-
-To also remove volumes:
-
-```bash
-docker-compose down -v
-```
-
----
-
-## Author
-
-Jithin Jyothi - Lab 1
+- The frontend and backend both use multi-stage Docker builds.
+- Three replicas each of frontend and backend are load-balanced by NGINX.
+- Data is persistent for MySQL using Docker volumes.
+- PostgreSQL runs in a separate compose file (`postgres-pgadmin/docker-compose.yml`).
